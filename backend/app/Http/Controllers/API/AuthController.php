@@ -15,11 +15,12 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // payload variable get the validated data
-         $payload = $request->validate([
-            "name" => "required|min:2|max:50",
-            "email" => "required|email|unique:users,email",
-            "username" => "required|alpha_num:ascii|min:4|max:50|unique:users,username",
-            "password" => "required|min:6|max:50|confirmed"
+        $payload = $request->validate([
+            'name' => 'required|min:2|max:50',
+            'email' => 'required|email|unique:users,email',
+            'username' =>
+                'required|alpha_num:ascii|min:4|max:50|unique:users,username',
+            'password' => 'required|min:6|max:50|confirmed',
         ]);
 
         try {
@@ -60,19 +61,66 @@ class AuthController extends Controller
                     ]);
                 }
 
-                $token = $user->createToken("web")->plainTextToken;
-                $authResponse = array_merge($user->toArray(), ['token' => $token]);
+                $token = $user->createToken('web')->plainTextToken;
+                $authResponse = array_merge($user->toArray(), [
+                    'token' => $token,
+                ]);
                 return response()->json([
                     'message' => 'Logged in successfully!!',
                     'user' => $authResponse,
                 ]);
             }
+            return response()->json([
+                        'message' => 'Invalid credentials',
+                    ],401);
         } catch (\Exception $err) {
             Log::info('Login error:' . $err->getMessage());
             return response()->json(
                 [
                     'message' =>
                         'Something went wrong!!. Please try again later',
+                ],
+                500
+            );
+        }
+    }
+
+    public function checkCredentials(Request $request)
+    {
+        $payload = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        try {
+            $user = User::where('email', $payload['email'])->first();
+            if ($user) {
+                if (!Hash::check($payload['password'], $user->password)) {
+                    return response()->json(
+                        [
+                            'message' => 'Invalid credentials',
+                        ],
+                        401
+                    );
+                }
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Logged in successfully!!',
+                ]);
+            }
+            return response()->json(
+                [
+                    'message' => 'Invalid credentials',
+                ],
+                401
+            );
+        } catch (\Exception $err) {
+            Log::info('Login Credentials error:' . $err->getMessage());
+            return response()->json(
+                [
+                    'message' =>
+                        'Something went wrong!! Backend. Please try again later',
                 ],
                 500
             );

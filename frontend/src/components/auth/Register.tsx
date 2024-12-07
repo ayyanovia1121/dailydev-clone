@@ -11,6 +11,9 @@ import {
 import { TabsContent } from "../ui/tabs";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import axiosApi from "@/lib/axios.config";
+import { REGISTER_URL } from "@/lib/apiEndPoint";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const [authState, setAuthState] = useState({
@@ -22,6 +25,32 @@ const Register = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    name: [],
+    email: [],
+    username: [],
+    password: [],
+  });
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    axiosApi
+      .post(REGISTER_URL, authState)
+      .then((res) => {
+        setLoading(false);
+        const response = res.data;
+        toast.success("Account created successfully!! we are logging you now.");
+      })
+      .catch((err) => {
+        setLoading(false);
+        if (err.response?.status === 422) {
+          setErrors(err.response?.data.errors);
+        }else{
+          toast.error("Something went wrong. Please try again later.");
+        }
+      });
+  };
 
   return (
     <div>
@@ -32,7 +61,7 @@ const Register = () => {
             <CardDescription>Welcome to Daily.dev</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <form action="">
+            <form onSubmit={handleSubmit}>
               <div className="space-y-1">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -44,6 +73,7 @@ const Register = () => {
                     setAuthState({ ...authState, name: e.target.value })
                   }
                 />
+                <span className="text-red-400">{errors?.name?.[0]}</span>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="username">Username</Label>
@@ -56,6 +86,7 @@ const Register = () => {
                     setAuthState({ ...authState, username: e.target.value })
                   }
                 />
+                <span className="text-red-400">{errors?.username?.[0]}</span>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="email">Email</Label>
@@ -68,6 +99,7 @@ const Register = () => {
                     setAuthState({ ...authState, email: e.target.value })
                   }
                 />
+                <span className="text-red-400">{errors?.email?.[0]}</span>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="password">Password</Label>
@@ -80,6 +112,7 @@ const Register = () => {
                     setAuthState({ ...authState, password: e.target.value })
                   }
                 />
+                <span className="text-red-400">{errors?.password?.[0]}</span>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="cpassword">Confirm Password</Label>
@@ -89,14 +122,17 @@ const Register = () => {
                   placeholder="Enter your password"
                   value={authState.password_confirmation}
                   onChange={(e) =>
-                    setAuthState({ ...authState, password_confirmation: e.target.value })
+                    setAuthState({
+                      ...authState,
+                      password_confirmation: e.target.value,
+                    })
                   }
                 />
               </div>
               <div className="mt-2">
                 <Button className="w-full" disabled={loading}>
                   {" "}
-                  {loading ? "Processing.." : "Login"}
+                  {loading ? "Processing.." : "Register"}
                 </Button>
               </div>
             </form>

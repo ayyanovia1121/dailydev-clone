@@ -27,13 +27,13 @@ const LoginPage = () => {
         />
       </div>
       <div className="flex justify-center items-center h-screen flex-col">
-        <div className="flex flex-col justify-start items-start mb-6 w-full md:w-[500px] px-4">
+        <div className="flex flex-col justify-start items-start mb-6 w-full lg:w-[500px] px-4">
           <Image src="/logo.svg" width={150} height={150} alt="logo" />
-          <h1 className="text-cabbage font-bold text-2xl md:text-3xl mt-2 ">
+          <h1 className="text-cabbage font-bold text-2xl lg:text-3xl mt-2 ">
             Where developers suffer together
           </h1>
         </div>
-        <Tabs defaultValue="login" className="w-full px-4 md:w-[500px]">
+        <Tabs defaultValue="login" className="w-full px-4 lg:w-[500px]">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
